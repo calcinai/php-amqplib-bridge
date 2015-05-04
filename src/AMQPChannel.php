@@ -4,6 +4,18 @@
  * stub class representing AMQPChannel from pecl-amqp
  */
 class AMQPChannel {
+
+    /** @var AMQPConnection */
+    private $connection;
+
+    /** @var \PhpAmqpLib\Channel\AMQPChannel  */
+    private $channel;
+
+    private $prefetch_count;
+    private $prefetch_size;
+
+    private $tx;
+
     /**
      * Commit a pending transaction.
      *
@@ -14,6 +26,18 @@ class AMQPChannel {
      * @return bool TRUE on success or FALSE on failure.
      */
     public function commitTransaction() {
+
+        if(!$this->tx){
+            throw new AMQPChannelException('No transaction in progress.');
+        }
+
+        try {
+            $this->channel->tx_commit();
+        } catch (Exception $e){
+            throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        }
+
+        return true;
     }
 
     /**
@@ -27,6 +51,11 @@ class AMQPChannel {
      *                                        was lost.
      */
     public function __construct(AMQPConnection $amqp_connection) {
+        $this->connection = $amqp_connection;
+        $this->channel = $amqp_connection->getConnection()->channel();
+
+        $this->prefetch_count = 0;
+        $this->prefetch_size = 0;
     }
 
     /**
@@ -35,6 +64,7 @@ class AMQPChannel {
      * @return bool Indicates whether the channel is connected.
      */
     public function isConnected() {
+        return $this->connection->isConnected();
     }
 
     /**
@@ -43,6 +73,7 @@ class AMQPChannel {
      * @return integer
      */
     public function getChannelId() {
+        return $this->channel->getChannelId();
     }
 
     /**
@@ -68,6 +99,14 @@ class AMQPChannel {
      * @return bool TRUE on success or FALSE on failure.
      */
     public function qos($size, $count) {
+
+        try {
+            $this->channel->basic_qos($size, $count, false);
+        } catch (Exception $e){
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -83,6 +122,7 @@ class AMQPChannel {
      * @return bool TRUE on success or FALSE on failure.
      */
     public function rollbackTransaction() {
+        //@todo
     }
 
     /**
@@ -100,6 +140,9 @@ class AMQPChannel {
      * @return boolean TRUE on success or FALSE on failure.
      */
     public function setPrefetchCount($count) {
+        $this->prefetch_size = 0;
+        $this->prefetch_count = $count;
+        return true;
     }
 
     /**
@@ -108,6 +151,7 @@ class AMQPChannel {
      * @return integer
      */
     public function getPrefetchCount() {
+        return $this->prefetch_count;
     }
 
     /**
@@ -127,6 +171,9 @@ class AMQPChannel {
      * @return bool TRUE on success or FALSE on failure.
      */
     public function setPrefetchSize($size) {
+        $this->prefetch_count = 0;
+        $this->prefetch_size = $size;
+        return true;
     }
 
     /**
@@ -135,6 +182,7 @@ class AMQPChannel {
      * @return integer
      */
     public function getPrefetchSize() {
+        return $this->prefetch_size;
     }
 
     /**
@@ -148,6 +196,9 @@ class AMQPChannel {
      * @return bool TRUE on success or FALSE on failure.
      */
     public function startTransaction() {
+
+        $this->channel->tx_select();
+        $this->tx = true;
     }
 
     /**
@@ -156,6 +207,7 @@ class AMQPChannel {
      * @return AMQPConnection
      */
     public function getConnection() {
+        return $this->connection;
     }
 
     /**
@@ -164,5 +216,6 @@ class AMQPChannel {
      * @param bool $requeue
      */
     public function basicRecover($requeue = true) {
+        $this->channel->basic_recover($requeue);
     }
 }
