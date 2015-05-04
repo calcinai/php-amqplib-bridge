@@ -211,6 +211,15 @@ class AMQPChannel {
     }
 
     /**
+     * Get the underlying php-amqplib AMQPChannel
+     *
+     * @return \PhpAmqpLib\Channel\AMQPChannel
+     */
+    public function getChannel(){
+        return $this->channel;
+    }
+
+    /**
      * Redeliver unacknowledged messages.
      *
      * @param bool $requeue
