@@ -1,0 +1,24 @@
+{
+    "name": "calcinai/php-amqplib-bridge",
+    "type": "library",
+    "description": "Bridge for videlalvaro/php-amqplib to expose classes compatible with PECL::AMQP",
+    "homepage": "https://github.com/calcinai/php-amqplib-bridge/",
+
+    "authors": [
+        {
+            "name": "Michael Calcinai",
+            "email": "michael@hell.co.nz"
+        }
+    ],
+
+    "require": {
+        "videlalvaro/php-amqplib": "2.2.*"
+    },
+    
+    "autoload": {
+        "psr-0": {
+            "SDKGenerator": "src/"
+        }
+    }
+
+}
