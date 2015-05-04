@@ -18,11 +18,10 @@
     "autoload": {
         "psr-0": {
             "AMQP": "src/"
-        }
-    },
-    "files": [
-        "src/Constants.php"
-    ]
-
+        },
+        "files": [
+            "src/Constants.php"
+        ]
+    }
 
 }
