@@ -3,8 +3,7 @@
 /**
  * stub class representing AMQPChannel from pecl-amqp
  */
-class AMQPChannel
-{
+class AMQPChannel {
     /**
      * Commit a pending transaction.
      *
@@ -14,8 +13,7 @@ class AMQPChannel
      *
      * @return bool TRUE on success or FALSE on failure.
      */
-    public function commitTransaction()
-    {
+    public function commitTransaction() {
     }
 
     /**
@@ -28,8 +26,7 @@ class AMQPChannel
      * @throws AMQPConnectionException        If the connection to the broker
      *                                        was lost.
      */
-    public function __construct(AMQPConnection $amqp_connection)
-    {
+    public function __construct(AMQPConnection $amqp_connection) {
     }
 
     /**
@@ -37,8 +34,7 @@ class AMQPChannel
      *
      * @return bool Indicates whether the channel is connected.
      */
-    public function isConnected()
-    {
+    public function isConnected() {
     }
 
     /**
@@ -46,8 +42,7 @@ class AMQPChannel
      *
      * @return integer
      */
-    public function getChannelId()
-    {
+    public function getChannelId() {
     }
 
     /**
@@ -65,15 +60,14 @@ class AMQPChannel
      * flag set, the client will not do any prefetching of data, regardless of
      * the QOS settings.
      *
-     * @param integer $size  The window size, in octets, to prefetch.
+     * @param integer $size The window size, in octets, to prefetch.
      * @param integer $count The number of messages to prefetch.
      *
      * @throws AMQPConnectionException If the connection to the broker was lost.
      *
      * @return bool TRUE on success or FALSE on failure.
      */
-    public function qos($size, $count)
-    {
+    public function qos($size, $count) {
     }
 
     /**
@@ -88,8 +82,7 @@ class AMQPChannel
      *
      * @return bool TRUE on success or FALSE on failure.
      */
-    public function rollbackTransaction()
-    {
+    public function rollbackTransaction() {
     }
 
     /**
@@ -106,8 +99,7 @@ class AMQPChannel
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    public function setPrefetchCount($count)
-    {
+    public function setPrefetchCount($count) {
     }
 
     /**
@@ -115,8 +107,7 @@ class AMQPChannel
      *
      * @return integer
      */
-    public function getPrefetchCount()
-    {
+    public function getPrefetchCount() {
     }
 
     /**
@@ -135,8 +126,7 @@ class AMQPChannel
      *
      * @return bool TRUE on success or FALSE on failure.
      */
-    public function setPrefetchSize($size)
-    {
+    public function setPrefetchSize($size) {
     }
 
     /**
@@ -144,8 +134,7 @@ class AMQPChannel
      *
      * @return integer
      */
-    public function getPrefetchSize()
-    {
+    public function getPrefetchSize() {
     }
 
     /**
@@ -158,8 +147,7 @@ class AMQPChannel
      *
      * @return bool TRUE on success or FALSE on failure.
      */
-    public function startTransaction()
-    {
+    public function startTransaction() {
     }
 
     /**
@@ -167,8 +155,7 @@ class AMQPChannel
      *
      * @return AMQPConnection
      */
-    public function getConnection()
-    {
+    public function getConnection() {
     }
 
     /**
@@ -176,7 +163,6 @@ class AMQPChannel
      *
      * @param bool $requeue
      */
-    public function basicRecover($requeue = true)
-    {
+    public function basicRecover($requeue = true) {
     }
 }

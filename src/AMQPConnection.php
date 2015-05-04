@@ -3,8 +3,7 @@
 /**
  * stub class representing AMQPConnection from pecl-amqp
  */
-class AMQPConnection
-{
+class AMQPConnection {
     /**
      * Establish a transient connection with the AMQP broker.
      *
@@ -13,8 +12,7 @@ class AMQPConnection
      * @throws AMQPConnectionException
      * @return boolean TRUE on success or throw an exception on failure.
      */
-    public function connect()
-    {
+    public function connect() {
     }
 
     /**
@@ -38,8 +36,7 @@ class AMQPConnection
      * @param array $credentials Optional array of credential information for
      *                           connecting to the AMQP broker.
      */
-    public function __construct(array $credentials = array())
-    {
+    public function __construct(array $credentials = array()) {
     }
 
     /**
@@ -49,8 +46,7 @@ class AMQPConnection
      *
      * @return boolean true if connection was successfully closed, false otherwise.
      */
-    public function disconnect()
-    {
+    public function disconnect() {
     }
 
     /**
@@ -58,8 +54,7 @@ class AMQPConnection
      *
      * @return string The configured hostname of the broker
      */
-    public function getHost()
-    {
+    public function getHost() {
     }
 
     /**
@@ -67,8 +62,7 @@ class AMQPConnection
      *
      * @return string The configured login as a string.
      */
-    public function getLogin()
-    {
+    public function getLogin() {
     }
 
     /**
@@ -76,8 +70,7 @@ class AMQPConnection
      *
      * @return string The configured password as a string.
      */
-    public function getPassword()
-    {
+    public function getPassword() {
     }
 
     /**
@@ -85,8 +78,7 @@ class AMQPConnection
      *
      * @return int The configured port as an integer.
      */
-    public function getPort()
-    {
+    public function getPort() {
     }
 
     /**
@@ -94,8 +86,7 @@ class AMQPConnection
      *
      * @return string The configured virtual host as a string.
      */
-    public function getVhost()
-    {
+    public function getVhost() {
     }
 
     /**
@@ -105,8 +96,7 @@ class AMQPConnection
      *
      * @return boolean True if connected, false otherwise.
      */
-    public function isConnected()
-    {
+    public function isConnected() {
     }
 
     /**
@@ -118,8 +108,7 @@ class AMQPConnection
      * @throws AMQPConnectionException
      * @return boolean TRUE on success or throws an exception on failure.
      */
-    public function pconnect()
-    {
+    public function pconnect() {
     }
 
     /**
@@ -132,8 +121,7 @@ class AMQPConnection
      *                 false if no persistent connection with this host,
      *                 port, vhost and login could be found,
      */
-    public function pdisconnect()
-    {
+    public function pdisconnect() {
     }
 
     /**
@@ -141,8 +129,7 @@ class AMQPConnection
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    public function reconnect()
-    {
+    public function reconnect() {
     }
 
     /**
@@ -150,8 +137,7 @@ class AMQPConnection
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    public function preconnect()
-    {
+    public function preconnect() {
     }
 
 
@@ -164,8 +150,7 @@ class AMQPConnection
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    public function setHost($host)
-    {
+    public function setHost($host) {
     }
 
     /**
@@ -178,8 +163,7 @@ class AMQPConnection
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    public function setLogin($login)
-    {
+    public function setLogin($login) {
     }
 
     /**
@@ -192,8 +176,7 @@ class AMQPConnection
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    public function setPassword($password)
-    {
+    public function setPassword($password) {
     }
 
     /**
@@ -206,8 +189,7 @@ class AMQPConnection
      *
      * @return boolean TRUE on success or FALSE on failure.
      */
-    public function setPort($port)
-    {
+    public function setPort($port) {
     }
 
     /**
@@ -220,8 +202,7 @@ class AMQPConnection
      *
      * @return boolean true on success or false on failure.
      */
-    public function setVhost($vhost)
-    {
+    public function setVhost($vhost) {
     }
 
     /**
@@ -233,8 +214,7 @@ class AMQPConnection
      *
      * @return bool
      */
-    public function setTimeout($timeout)
-    {
+    public function setTimeout($timeout) {
     }
 
     /**
@@ -245,8 +225,7 @@ class AMQPConnection
      *
      * @return float
      */
-    public function getTimeout()
-    {
+    public function getTimeout() {
     }
 
     /**
@@ -256,8 +235,7 @@ class AMQPConnection
      *
      * @return bool
      */
-    public function setReadTimeout($timeout)
-    {
+    public function setReadTimeout($timeout) {
     }
 
     /**
@@ -266,8 +244,7 @@ class AMQPConnection
      *
      * @return float
      */
-    public function getReadTimeout()
-    {
+    public function getReadTimeout() {
     }
 
     /**
@@ -277,8 +254,7 @@ class AMQPConnection
      *
      * @return bool
      */
-    public function setWriteTimeout($timeout)
-    {
+    public function setWriteTimeout($timeout) {
     }
 
     /**
@@ -287,8 +263,7 @@ class AMQPConnection
      *
      * @return float
      */
-    public function getWriteTimeout()
-    {
+    public function getWriteTimeout() {
     }
 
     /**
@@ -296,8 +271,7 @@ class AMQPConnection
      *
      * @return int
      */
-    public function getUsedChannels()
-    {
+    public function getUsedChannels() {
     }
 
     /**
@@ -305,8 +279,7 @@ class AMQPConnection
      *
      * @return int|null
      */
-    public function getMaxChannels()
-    {
+    public function getMaxChannels() {
     }
 
     /**
@@ -314,7 +287,6 @@ class AMQPConnection
      *
      * @return bool|null
      */
-    public function isPersistent()
-    {
+    public function isPersistent() {
     }
 }
