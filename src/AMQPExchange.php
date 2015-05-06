@@ -1,6 +1,7 @@
 <?php
+use PhpAmqpLib\Exception\AMQPRuntimeException;
 use PhpAmqpLib\Message\AMQPMessage;
-use PhpAmqpLib\Wire\AM
+use PhpAmqpLib\Wire\AMQPTable;
 
 /**
  * stub class representing AMQPExchange from pecl-amqp
@@ -31,7 +32,7 @@ class AMQPExchange {
     public function __construct(AMQPChannel $amqp_channel) {
         $this->channel = $amqp_channel;
         $this->arguments = array();
-
+        $this->flags = AMQP_NOPARAM;
     }
 
     /**
@@ -45,12 +46,13 @@ class AMQPExchange {
      */
     public function declareExchange() {
 
-        $durable = (bool) $this->flags & AMQP_DURABLE;
-        $passive = (bool) $this->flags & AMQP_PASSIVE;
+        $durable = 0 !== $this->flags & AMQP_DURABLE;
+        $passive = 0 !== $this->flags & AMQP_PASSIVE;
 
-        //@todo - work out the actual exceptions that are thrown.
         try {
-            $this->channel->getChannel()->exchange_declare($this->name, $this->type, $passive, $durable, false);
+            $this->channel->_getChannel()->exchange_declare($this->name, $this->type, $passive, $durable, false);
+        } catch (AMQPRuntimeException $e) {
+            throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
         } catch (Exception $e) {
             throw new AMQPExchangeException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }
@@ -75,8 +77,10 @@ class AMQPExchange {
     public function bind($exchange_name, $routing_key = '', array $arguments = array()) {
 
         try {
-            $this->channel->getChannel()->exchange_bind($exchange_name, $this->name, $routing_key, $nowait = false, $arguments);
-        } catch (Exception $e){
+            $this->channel->_getChannel()->exchange_bind($exchange_name, $this->name, $routing_key, $nowait = false, $arguments);
+        } catch (AMQPRuntimeException $e) {
+            throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        } catch (Exception $e) {
             throw new AMQPExchangeException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }
 
@@ -101,8 +105,10 @@ class AMQPExchange {
     public function unbind($exchange_name, $routing_key = '', array $arguments = array()) {
 
         try {
-            $this->channel->getChannel()->exchange_unbind($exchange_name, $this->name, $routing_key, $nowait = false, $arguments);
-        } catch (Exception $e){
+            $this->channel->_getChannel()->exchange_unbind($exchange_name, $this->name, $routing_key, $nowait = false, $arguments);
+        } catch (AMQPRuntimeException $e) {
+            throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        } catch (Exception $e) {
             throw new AMQPExchangeException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }
 
@@ -126,16 +132,20 @@ class AMQPExchange {
      */
     public function delete($exchangeName = null, $flags = AMQP_NOPARAM) {
 
-        $if_unused = (bool) $flags & AMQP_IFUNUSED;
+        $if_unused = 0 !== $flags & AMQP_IFUNUSED;
 
         if($exchangeName === null)
             $exchangeName = $this->name;
 
         try {
-            $this->channel->getChannel()->exchange_delete($exchangeName, $if_unused);
-        } catch (Exception $e){
+            $this->channel->_getChannel()->exchange_delete($exchangeName, $if_unused);
+        } catch (AMQPRuntimeException $e) {
+            throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        } catch (Exception $e) {
             throw new AMQPExchangeException($e->getMessage(), $e->getCode(), $e->getPrevious());
         }
+
+        return true;
 
     }
 
@@ -216,19 +226,30 @@ class AMQPExchange {
     public function publish($message, $routing_key = null, $flags = AMQP_NOPARAM, array $attributes = array()) {
 
 
-        $amqp_message = new AMQPMessage();
+        $mandatory = 0 !== $flags & AMQP_MANDATORY;
+        $immediate = 0 !== $flags & AMQP_IMMEDIATE;
 
-        if(isset($attributes['headers']))
-            $amqp_message->set('application_headers', new \PhpAmqpLib ($attributes['headers']));
+        if($routing_key === null)
+            $routing_key = '';
 
-        $amqp_message->setBody(json_encode($this->payload));
-        $amqp_message->set('message_id', $this->getMessageID());
-        $amqp_message->set('content_type', 'application/json');
-        $amqp_message->set('delivery_mode', 1);
+        //Why different keys?
+        if(isset($attributes['headers'])){
+            $attributes['application_headers'] = new AMQPTable($attributes['headers']);
+            unset($attributes['headers']);
+        }
+
+        $amqp_message = new AMQPMessage($message, $attributes);
 
 
+        try {
+            $this->channel->_getChannel()->basic_publish($amqp_message, $this->name, $routing_key, $mandatory, $immediate);
+        } catch (AMQPRuntimeException $e) {
+            throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        } catch (Exception $e) {
+            throw new AMQPExchangeException($e->getMessage(), $e->getCode(), $e->getPrevious());
+        }
 
-        $this->channel->getChannel()->basic_publish($message)
+        return true;
     }
 
     /**

@@ -405,7 +405,7 @@ class AMQPConnection {
      *
      * @return AMQPStreamConnection
      */
-    public function getConnection(){
+    public function _getConnection(){
         return $this->connection;
     }
 }

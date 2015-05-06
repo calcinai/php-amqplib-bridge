@@ -52,7 +52,7 @@ class AMQPChannel {
      */
     public function __construct(AMQPConnection $amqp_connection) {
         $this->connection = $amqp_connection;
-        $this->channel = $amqp_connection->getConnection()->channel();
+        $this->channel = $amqp_connection->_getConnection()->channel();
 
         $this->prefetch_count = 0;
         $this->prefetch_size = 0;
@@ -215,7 +215,7 @@ class AMQPChannel {
      *
      * @return \PhpAmqpLib\Channel\AMQPChannel
      */
-    public function getChannel(){
+    public function _getChannel(){
         return $this->channel;
     }
 
