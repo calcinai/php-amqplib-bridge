@@ -15,7 +15,7 @@ class AMQPQueue {
     private $flags;
     private $arguments;
 
-    private $consuming;
+    private $consumer_tag;
     private $last_envelope;
 
     /**
@@ -31,7 +31,7 @@ class AMQPQueue {
         $this->channel = $amqp_channel;
         $this->arguments = array();
         $this->flags = AMQP_NOPARAM;
-        $this->consuming = false;
+        $this->consumer_tag = null;
         $this->last_envelope = null;
     }
 
@@ -107,7 +107,7 @@ class AMQPQueue {
 
         $this->last_envelope = null;
 
-        if($this->consuming === false)
+        if(!$this->isConsuming())
             $this->setupConsume($flags);
 
         //non-blocking read from the underlying socket.
@@ -135,12 +135,16 @@ class AMQPQueue {
         //Man-in-the-middle callback to transform response to an envelope.
         //AMQPProtocolChannelException
         $queue = $this;
-        $this->channel->_getChannel()->basic_consume($this->name, $consumer_tag, $no_local = false, $auto_ack, $exclusive = false, $nowait = false,
+        list($this->consumer_tag) = $this->channel->_getChannel()->basic_consume($this->name, $consumer_tag, $no_local = false, $auto_ack, $exclusive = false, $nowait = false,
             function(AMQPMessage $message) use($queue) {
                 $queue->last_envelope = AMQPEnvelope::fromAMQPMessage($message);
             });
 
-        $this->consuming = true;
+    }
+
+
+    private function isConsuming(){
+        return $this->consumer_tag !== null;
     }
 
     /**
@@ -322,6 +326,9 @@ class AMQPQueue {
      * @return bool;
      */
     public function cancel($consumer_tag = '') {
+
+        if($consumer_tag === '')
+            $consumer_tag = $this->consumer_tag;
 
         try {
             $this->channel->_getChannel()->basic_cancel($consumer_tag);
