@@ -46,8 +46,8 @@ class AMQPExchange {
      */
     public function declareExchange() {
 
-        $durable = 0 !== $this->flags & AMQP_DURABLE;
-        $passive = 0 !== $this->flags & AMQP_PASSIVE;
+        $durable = boolval($this->flags & AMQP_DURABLE);
+        $passive = boolval($this->flags & AMQP_PASSIVE);
 
         try {
             $this->channel->_getChannel()->exchange_declare($this->name, $this->type, $passive, $durable, false);
@@ -132,7 +132,7 @@ class AMQPExchange {
      */
     public function delete($exchangeName = null, $flags = AMQP_NOPARAM) {
 
-        $if_unused = 0 !== $flags & AMQP_IFUNUSED;
+        $if_unused = boolval($flags & AMQP_IFUNUSED);
 
         if($exchangeName === null)
             $exchangeName = $this->name;
@@ -226,8 +226,8 @@ class AMQPExchange {
     public function publish($message, $routing_key = null, $flags = AMQP_NOPARAM, array $attributes = array()) {
 
 
-        $mandatory = 0 !== $flags & AMQP_MANDATORY;
-        $immediate = 0 !== $flags & AMQP_IMMEDIATE;
+        $mandatory = boolval($flags & AMQP_MANDATORY);
+        $immediate = boolval($flags & AMQP_IMMEDIATE);
 
         if($routing_key === null)
             $routing_key = '';

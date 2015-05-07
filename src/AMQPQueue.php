@@ -16,7 +16,7 @@ class AMQPQueue {
     private $arguments;
 
     private $consuming;
-    private $messages;
+    private $last_envelope;
 
     /**
      * Create an instance of an AMQPQueue object.
@@ -32,6 +32,7 @@ class AMQPQueue {
         $this->arguments = array();
         $this->flags = AMQP_NOPARAM;
         $this->consuming = false;
+        $this->last_envelope = null;
     }
 
     /**
@@ -66,10 +67,17 @@ class AMQPQueue {
      */
     public function consume(callable $callback = null, $flags = AMQP_NOPARAM, $consumer_tag = null) {
 
+        $this->last_envelope = null;
+
         $this->setupConsume($flags, $consumer_tag);
 
-        while(count($this->channel->_getChannel()->callbacks) > 0)
+        while(count($this->channel->_getChannel()->callbacks) > 0){
             $this->channel->_getChannel()->wait();
+            //Will unblock when there's a message
+            //This handling might need to be extended to receive a batch.
+            //Need to MITM the callback for the message.
+            call_user_func($callback, $this->last_envelope);
+        }
 
     }
 
@@ -97,6 +105,8 @@ class AMQPQueue {
      */
     public function get($flags = AMQP_NOPARAM) {
 
+        $this->last_envelope = null;
+
         if($this->consuming === false)
             $this->setupConsume($flags);
 
@@ -104,38 +114,31 @@ class AMQPQueue {
         $read = array($this->getConnection()->_getConnection()->getSocket());
         $write = null;
         $except = null;
-        while(stream_select($read, $write, $except, 0) > 0) {
+        if(stream_select($read, $write, $except, 0) > 0) {
             $this->channel->_getChannel()->wait();
-            echo "data\n\n";
         }
+
+        if($this->last_envelope !== null)
+            return $this->last_envelope;
 
         return false;
 
     }
 
     private function setupConsume($flags, $consumer_tag = null){
-//foreach(debug_backtrace() as $bt){
-//    unset($bt['object']);
-//    print_r($bt);
-//}
-        echo $this->name."\n";
-        print_r(func_get_args());
 
-        $auto_ack = 0 !== $flags & AMQP_AUTOACK;
+        $auto_ack = boolval($flags & AMQP_AUTOACK);
 
         if($consumer_tag === null)
             $consumer_tag = '';
 
         //Man-in-the-middle callback to transform response to an envelope.
         //AMQPProtocolChannelException
-        print_r($this->channel->_getChannel()->basic_consume($this->name, $consumer_tag, $no_local = false, $auto_ack, $exclusive = false, $nowait = false,
-            function(AMQPMessage $message) {
-
-                $envelope = new AMQPEnvelope();
-
-                print_r($message);
-
-            }));
+        $queue = $this;
+        $this->channel->_getChannel()->basic_consume($this->name, $consumer_tag, $no_local = false, $auto_ack, $exclusive = false, $nowait = false,
+            function(AMQPMessage $message) use($queue) {
+                $queue->last_envelope = AMQPEnvelope::fromAMQPMessage($message);
+            });
 
         $this->consuming = true;
     }
@@ -150,13 +153,13 @@ class AMQPQueue {
      */
     public function declareQueue() {
 
-        $durable = 0 !== $this->flags & AMQP_DURABLE;
-        $passive = 0 !== $this->flags & AMQP_PASSIVE;
-        $exclusive = 0 !== $this->flags & AMQP_EXCLUSIVE;
-        $auto_delete = 0 !== $this->flags & AMQP_AUTODELETE;
+        $durable = boolval($this->flags & AMQP_DURABLE);
+        $passive = boolval($this->flags & AMQP_PASSIVE);
+        $exclusive = boolval($this->flags & AMQP_EXCLUSIVE);
+        $auto_delete = boolval($this->flags & AMQP_AUTODELETE);
 
         try {
-            list($num_messages) = $this->channel->_getChannel()->queue_declare($this->name, $passive, $durable, $exclusive, $auto_delete, $nowait = false, $this->arguments);
+            list($this->name, $num_messages) = $this->channel->_getChannel()->queue_declare($this->name, $passive, $durable, $exclusive, $auto_delete, $nowait = false, $this->arguments);
         } catch (AMQPRuntimeException $e) {
             throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
         } catch (Exception $e) {
@@ -183,7 +186,7 @@ class AMQPQueue {
      */
     public function delete($flags = AMQP_NOPARAM) {
 
-        $if_unused = 0 !== $flags & AMQP_IFUNUSED;
+        $if_unused = boolval($flags & AMQP_IFUNUSED);
 
         try {
             list($num_deleted) = $this->channel->_getChannel()->queue_delete($this->name, $if_unused);
@@ -261,7 +264,7 @@ class AMQPQueue {
      */
     public function ack($delivery_tag, $flags = AMQP_NOPARAM) {
 
-        $multiple = 0 !== $flags & AMQP_MULTIPLE;
+        $multiple = boolval($flags & AMQP_MULTIPLE);
 
         try {
             $this->channel->_getChannel()->basic_ack($delivery_tag, $multiple);
@@ -357,8 +360,8 @@ class AMQPQueue {
      */
     public function nack($delivery_tag, $flags = AMQP_NOPARAM) {
 
-        $requeue = 0 !== $flags & AMQP_REQUEUE;
-        $multiple = 0 !== $flags & AMQP_MULTIPLE;
+        $requeue = boolval($flags & AMQP_REQUEUE);
+        $multiple = boolval($flags & AMQP_MULTIPLE);
 
         try {
             $this->channel->_getChannel()->basic_nack($delivery_tag, $multiple, $requeue);
@@ -390,7 +393,7 @@ class AMQPQueue {
      */
     public function reject($delivery_tag, $flags = AMQP_NOPARAM) {
 
-        $requeue = 0 !== $flags & AMQP_REQUEUE;
+        $requeue = boolval($flags & AMQP_REQUEUE);
 
         try {
             $this->channel->_getChannel()->basic_reject($delivery_tag, $requeue);
