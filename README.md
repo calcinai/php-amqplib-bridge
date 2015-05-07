@@ -22,4 +22,4 @@ All classes, functions and exceptions should be equivelent to the native ones.  
 
 ## Examples ##
 
-Unfortunately the documentation for the PECL extension is quite poor, but with a reasonable understanding of AMQP, you should be able to feel your way around.  There are some usage examples on the (Polish?) [man pages](PECL::AMQP Extension](http://php.net/manual/pl/book.amqp.php).
+Unfortunately the documentation for the PECL extension is quite poor, but with a reasonable understanding of AMQP, you should be able to feel your way around.  There are some usage examples on the (Polish?) [man pages](http://php.net/manual/pl/book.amqp.php).
