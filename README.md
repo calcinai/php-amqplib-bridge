@@ -10,7 +10,7 @@ As a bonus, this library will provide type hints/code completion to your IDE (fo
 ```
 {
   "require": {
-      "calcinai/php-amqplib-bridge": "dev-master"
+      "calcinai/php-amqplib-bridge": "0.1.*"
   }
 }
 ```
