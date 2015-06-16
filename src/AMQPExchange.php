@@ -48,9 +48,10 @@ class AMQPExchange {
 
         $durable = boolval($this->flags & AMQP_DURABLE);
         $passive = boolval($this->flags & AMQP_PASSIVE);
+        $auto_delete = boolval($this->flags & AMQP_AUTODELETE);
 
         try {
-            $this->channel->_getChannel()->exchange_declare($this->name, $this->type, $passive, $durable, false);
+            $this->channel->_getChannel()->exchange_declare($this->name, $this->type, $passive, $durable, $auto_delete);
         } catch (AMQPRuntimeException $e) {
             throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
         } catch (Exception $e) {
@@ -282,13 +283,13 @@ class AMQPExchange {
      * @param integer $flags A bitmask of flags. This call currently only
      *                       considers the following flags:
      *                       AMQP_DURABLE, AMQP_PASSIVE
-     *                       (and AMQP_DURABLE, if librabbitmq version >= 0.5.3)
+     *                       (and AMQP_DURABLE & AMQP_AUTODELETE, if librabbitmq version >= 0.5.3)
      *
      * @return boolean True on success or false on failure.
      */
     public function setFlags($flags) {
 
-        if($flags !== $flags & (AMQP_DURABLE | AMQP_PASSIVE))
+        if($flags !== $flags & (AMQP_DURABLE | AMQP_PASSIVE | AMQP_AUTODELETE))
             return false;
 
         $this->flags = $flags;
