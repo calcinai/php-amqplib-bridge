@@ -13,6 +13,8 @@ class AMQPConnection {
     private $connect_timeout;
     private $read_timeout;
     private $write_timeout;
+    private $heartbeat = 0;
+    private $keepalive = false;
 
     /** @var bool */
     private $persistent;
@@ -38,6 +40,7 @@ class AMQPConnection {
      *      'read_timeout'  => Timeout in for income activity. Note: 0 or greater seconds. May be fractional.
      *      'write_timeout' => Timeout in for outcome activity. Note: 0 or greater seconds. May be fractional.
      *      'connect_timeout' => Connection timeout. Note: 0 or greater seconds. May be fractional.
+     *      'heartbeat' => Heartbeat negociation in seconds. This has been added in php-amqp 1.6beta3, so not available for 1.4 stable
      * )
      *
      * @param array $credentials Optional array of credential information for
@@ -54,6 +57,8 @@ class AMQPConnection {
         $this->connect_timeout = isset($credentials['connect_timeout']) ? $credentials['connect_timeout'] : 3;
         $this->read_timeout = isset($credentials['read_timeout']) ? $credentials['read_timeout'] : 3;
         $this->write_timeout = isset($credentials['write_timeout']) ? $credentials['write_timeout'] : 3;
+        $this->heartbeat = isset($credentials['heartbeat']) ? $credentials['heartbeat'] : 0;
+        $this->keepalive = isset($credentials['keepalive']) ? $credentials['keepalive'] : false;
 
         $this->persistent = false;
 
@@ -68,7 +73,7 @@ class AMQPConnection {
      * @return boolean TRUE on success or throw an exception on failure.
      */
     public function connect() {
-
+        $readWriteTimeout = max($this->read_timeout, $this->write_timeout), //?
         try {
             $this->connection = new AMQPStreamConnection(
                 $this->host,
@@ -76,12 +81,15 @@ class AMQPConnection {
                 $this->login,
                 $this->password,
                 $this->vhost,
-                false, //insist
-                'AMQPLAIN', //login method
-                null, //login response
-                'en_US', //locale
-                $this->connect_timeout,
-                max($this->read_timeout, $this->write_timeout) //?
+                false,                      //insist
+                'AMQPLAIN',                 //login method
+                null,                       //login response
+                'en_US',                    //locale
+                $this->connect_timeout,     // connect_timeout
+                $readWriteTimeout,          // read_write_timeout
+                null,                       // context
+                $this->keepalive,           // keepalive
+                $this->heartbeat            // heartbeat configuration
             );
 
             //Several exception types might be thrown

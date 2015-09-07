@@ -8,12 +8,41 @@ use PhpAmqpLib\Wire\AMQPTable;
  */
 class AMQPExchange {
 
+    /**
+     * The current channel
+     * @var AMQPChannel
+     */
     private $channel;
 
+    /**
+     * Exchange name
+     * @var string
+     */
     private $name;
+
+    /**
+     * Exchange type
+     * @var int
+     */
     private $type;
+
+    /**
+     * The flags
+     * @var int
+     */
     private $flags;
+
+    /**
+     * Exchange arguments
+     * @var array
+     */
     private $arguments;
+
+    /**
+     * Enable publisher acknowledgements
+     * @var bool
+     */
+    private $publisherAcks = true;
 
     /**
      * Create an instance of AMQPExchange.
@@ -241,9 +270,12 @@ class AMQPExchange {
 
         $amqp_message = new AMQPMessage($message, $attributes);
 
-
         try {
             $this->channel->_getChannel()->basic_publish($amqp_message, $this->name, $routing_key, $mandatory, $immediate);
+
+            if ($this->publisherAcks === true) {
+                $this->channel->_getChannel()->wait_for_pending_acks_returns(1);
+            }
         } catch (AMQPRuntimeException $e) {
             throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
         } catch (Exception $e) {
