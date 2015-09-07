@@ -53,7 +53,6 @@ class AMQPConnection {
         $this->vhost = isset($credentials['vhost']) ? $credentials['vhost'] : '/';
         $this->login = isset($credentials['login']) ? $credentials['login'] : '';
         $this->password = isset($credentials['password']) ? $credentials['password'] : '';
-
         $this->connect_timeout = isset($credentials['connect_timeout']) ? $credentials['connect_timeout'] : 3;
         $this->read_timeout = isset($credentials['read_timeout']) ? $credentials['read_timeout'] : 3;
         $this->write_timeout = isset($credentials['write_timeout']) ? $credentials['write_timeout'] : 3;
@@ -73,7 +72,7 @@ class AMQPConnection {
      * @return boolean TRUE on success or throw an exception on failure.
      */
     public function connect() {
-        $readWriteTimeout = max($this->read_timeout, $this->write_timeout), //?
+        $readWriteTimeout = max($this->read_timeout, $this->write_timeout); //?
         try {
             $this->connection = new AMQPStreamConnection(
                 $this->host,
