@@ -107,7 +107,7 @@ class AMQPExchange {
     public function bind($exchange_name, $routing_key = '', array $arguments = array()) {
 
         try {
-            $this->channel->_getChannel()->exchange_bind($exchange_name, $this->name, $routing_key, $nowait = false, $arguments);
+            $this->channel->_getChannel()->exchange_bind($this->name, $exchange_name, $routing_key, $nowait = false, $arguments);
         } catch (AMQPRuntimeException $e) {
             throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
         } catch (Exception $e) {
@@ -135,7 +135,7 @@ class AMQPExchange {
     public function unbind($exchange_name, $routing_key = '', array $arguments = array()) {
 
         try {
-            $this->channel->_getChannel()->exchange_unbind($exchange_name, $this->name, $routing_key, $nowait = false, $arguments);
+            $this->channel->_getChannel()->exchange_unbind($this->name, $exchange_name, $routing_key, $nowait = false, $arguments);
         } catch (AMQPRuntimeException $e) {
             throw new AMQPConnectionException($e->getMessage(), $e->getCode(), $e->getPrevious());
         } catch (Exception $e) {
