@@ -13,7 +13,7 @@
     ],
 
     "require": {
-        "php-amqplib/php-amqplib": "2.5.*"
+        "php-amqplib/php-amqplib": "^2.5"
     },
 
     "autoload": {
